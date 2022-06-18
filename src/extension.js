@@ -6,8 +6,27 @@ const Gtk = imports.gi.Gtk;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const GLib = imports.gi.GLib;
 
 let myPopup;
+
+function getSettings () {
+  let GioSSS = Gio.SettingsSchemaSource;
+  let schemaSource = GioSSS.new_from_directory(
+    Me.dir.get_child("schemas").get_path(),
+    GioSSS.get_default(),
+    false
+  );
+
+
+  log("path:" + Me.dir.get_child("schemas").get_path())
+  let schemaObj = schemaSource.lookup(
+    'org.gnome.shell.extensions.sportsnotifications', true);
+  if (!schemaObj) {
+    throw new Error('cannot find schemas');
+  }
+  return new Gio.Settings({ settings_schema : schemaObj });
+}
 
 const MyPopup = GObject.registerClass(
 class MyPopup extends PanelMenu.Button {
@@ -62,6 +81,40 @@ class MyPopup extends PanelMenu.Button {
     // this.menu.close();
     // this.menu.open();
     // this.menu.toggle();
+
+
+    let settings = getSettings();
+  
+    // my array
+    //settings.set_strv('my-array', ['new', 'new2']);
+    let arr = settings.get_value('array-of-sports');
+    log("Type" + arr.get_type());
+    const shallowDictUnpacked = arr.deepUnpack();
+    log("len:" + Object.keys(shallowDictUnpacked).length);
+    log("Index:" + Object.values(shallowDictUnpacked)[0])
+    log("Vals:" + Object.values(shallowDictUnpacked));
+    log("Keys:" + Object.keys(shallowDictUnpacked));
+    // log("arr" + arr.print(true));
+
+    let el_arr = Object.values(shallowDictUnpacked)[0];
+    log("Keys:" + Object.keys(el_arr));
+    log("string:" + el_arr['delta_h'].get_int32());
+
+    const variant = new GLib.Variant('aa{sv}', [{
+      name: GLib.Variant.new_string('Mario'),
+      lives: GLib.Variant.new_uint32(3),
+      active: GLib.Variant.new_boolean(true),
+  },
+  {
+    name: GLib.Variant.new_string('2'),
+    lives: GLib.Variant.new_uint32(22),
+    active: GLib.Variant.new_boolean(false),
+  }]);
+    log("example" + variant.print(true))
+    log("example len:" + Object.keys(variant.deepUnpack()).length)
+    log("example Index:" + Object.values(variant.deepUnpack())[0])
+    log("Keys:" + Object.keys(variant.deepUnpack()));
+  
   }
 
   createButton(iconName, accessibleName) {
@@ -72,7 +125,7 @@ class MyPopup extends PanelMenu.Button {
         can_focus: true,
         track_hover: true,
         accessible_name: accessibleName,
-        //style_class: 'message-list-clear-button button openweather-button-action'
+        style_class: 'message-list-clear-button button openweather-button-action'
     });
 
     button.child = new St.Icon({

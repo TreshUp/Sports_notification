@@ -2,6 +2,7 @@
     "name": "Sports notifications",
     "uuid": "sports_notifications@tr.com",
     "description": "Do not forget to watch your favourite sport with this extension.",
+    "settings-schema": "org.gnome.shell.extensions.sportsnotifications",
     "shell-version": 
     [
         "42"

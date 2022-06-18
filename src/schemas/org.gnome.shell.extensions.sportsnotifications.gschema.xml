@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.sportsnotifications"  
+  path="/org/gnome/shell/extensions/sportsnotifications/">
+    <key name="array-of-sports" type="aa{sv}">
+      <default>
+				<![CDATA[
+				[
+          {
+            'name': <'Autosport'>, 
+            'league': <'Formula 1'>, 
+            'fav': <'Ferrari'>,
+            'delta_h': <24>,
+            'time_fmt': <'UTC'>,
+            'api': <'https://ergast.com/api/f1/current'>
+          }
+				]
+			]]></default>
+    </key>
+  </schema>
+</schemalist>

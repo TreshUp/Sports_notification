@@ -1,7 +1,8 @@
 .DEFAULT_GOAL = install
 .SILENT: install clean
 
-# TODO parse uuid
+# TODO remake make after moving schemas away from src
+# TODO use copy instead of link
 ex_name = sports_notifications@tr.com
 mkfile_path = $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir = $(dir $(mkfile_path))
@@ -20,6 +21,9 @@ clean:
 	else \
 		echo "Doesn't exist"; \
 	fi
+
+schemas:
+	glib-compile-schemas $(link_path)/schemas --strict
 	
 
 .PHONY: install clean
