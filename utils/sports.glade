@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkListStore" id="list_sports">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+      <!-- column-name Delta, -->
+      <column type="gint"/>
+      <!-- column-name Time -->
+      <column type="gchararray"/>
+      <!-- column-name Api -->
+      <column type="gchararray"/>
+      <!-- column-name Favourite -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkWindow" id="window_main">
+    <property name="can-focus">False</property>
+    <property name="default-width">600</property>
+    <property name="default-height">250</property>
+    <child>
+      <object class="GtkViewport" id="view_main">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-start">7</property>
+        <property name="margin-end">7</property>
+        <property name="margin-top">7</property>
+        <property name="margin-bottom">7</property>
+        <child>
+          <object class="GtkBox" id="box_main">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox" id="box_stack">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkStackSwitcher" id="stack_switch">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stack">stack_settings</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkStack" id="stack_settings">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkTreeView" id="tree_sports">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="model">list_sports</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title">Name</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_name"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                                <attribute name="width-chars">4</attribute>
+                                <attribute name="max-width-chars">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title">Delta, h.</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_delta"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title">Time format</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_time_fmt"/>
+                              <attributes>
+                                <attribute name="text">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Api</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_api"/>
+                              <attributes>
+                                <attribute name="text">3</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Favourite</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_fav"/>
+                              <attributes>
+                                <attribute name="text">4</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">page_sports</property>
+                        <property name="title" translatable="yes">Sports</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <!-- n-columns=3 n-rows=3 -->
+                      <object class="GtkGrid">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">page_ext</property>
+                        <property name="title" translatable="yes">Extension settings</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="but_box">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <child>
+                  <object class="GtkButton" id="but_add">
+                    <property name="label" translatable="yes">Add</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="but_edit">
+                    <property name="label" translatable="yes">Edit</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="but_rem">
+                    <property name="label" translatable="yes">Remove</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="spin_vals_delta">
+    <property name="lower">1</property>
+    <property name="upper">120</property>
+    <property name="value">24</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkWindow" id="window_base_settings">
+    <property name="can-focus">False</property>
+    <property name="default-width">350</property>
+    <property name="default-height">300</property>
+    <child>
+      <object class="GtkViewport" id="view_base_settings">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <!-- n-columns=2 n-rows=7 -->
+          <object class="GtkGrid" id="grid_settings">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-start">7</property>
+            <property name="margin-end">7</property>
+            <property name="margin-top">7</property>
+            <property name="margin-bottom">7</property>
+            <property name="row-homogeneous">True</property>
+            <property name="column-homogeneous">True</property>
+            <child>
+              <object class="GtkLabel" id="lbl_sport">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Sport name</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lbl_league">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">League</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lbl_fav">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Favourite</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lbl_delta">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Delta, h.</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lbl_time_fmt">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Time format</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lbl_api">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">API</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="cmb_sports">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkTextView" id="text_api">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="top-margin">7</property>
+                <property name="indent">6</property>
+                <property name="input-purpose">url</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_check_api">
+                <property name="label" translatable="yes">Check API</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="cmb_league">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="cmb_fav">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="spin_delta">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">spin_vals_delta</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="cmb_time_fmt">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -1,12 +1,8 @@
-const Main = imports.ui.main;
-const St = imports.gi.St;
-const GObject = imports.gi.GObject;
-const Gio = imports.gi.Gio;
-const Gtk = imports.gi.Gtk;
+const {St, GObject, Gio, Gtk, GLib} = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const GLib = imports.gi.GLib;
 
 let myPopup;
 
@@ -114,7 +110,10 @@ class MyPopup extends PanelMenu.Button {
     log("example len:" + Object.keys(variant.deepUnpack()).length)
     log("example Index:" + Object.values(variant.deepUnpack())[0])
     log("Keys:" + Object.keys(variant.deepUnpack()));
-  
+    log(Me.path)
+    const gtkVersion = Gtk.get_major_version();
+
+    log(`GTK version is ${gtkVersion}`);
   }
 
   createButton(iconName, accessibleName) {
