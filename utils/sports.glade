@@ -6,13 +6,15 @@
     <columns>
       <!-- column-name Name -->
       <column type="gchararray"/>
+      <!-- column-name League -->
+      <column type="gchararray"/>
+      <!-- column-name Favourite -->
+      <column type="gchararray"/>
       <!-- column-name Delta, -->
       <column type="gint"/>
       <!-- column-name Time -->
       <column type="gchararray"/>
       <!-- column-name Api -->
-      <column type="gchararray"/>
-      <!-- column-name Favourite -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -69,41 +71,17 @@
                               <object class="GtkCellRendererText" id="col_name"/>
                               <attributes>
                                 <attribute name="text">0</attribute>
-                                <attribute name="width-chars">4</attribute>
-                                <attribute name="max-width-chars">2</attribute>
                               </attributes>
                             </child>
                           </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn">
-                            <property name="title">Delta, h.</property>
+                            <property name="title" translatable="yes">League</property>
                             <child>
-                              <object class="GtkCellRendererText" id="col_delta"/>
+                              <object class="GtkCellRendererText" id="col_league"/>
                               <attributes>
                                 <attribute name="text">1</attribute>
-                              </attributes>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkTreeViewColumn">
-                            <property name="title">Time format</property>
-                            <child>
-                              <object class="GtkCellRendererText" id="col_time_fmt"/>
-                              <attributes>
-                                <attribute name="text">2</attribute>
-                              </attributes>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkTreeViewColumn">
-                            <property name="title" translatable="yes">Api</property>
-                            <child>
-                              <object class="GtkCellRendererText" id="col_api"/>
-                              <attributes>
-                                <attribute name="text">3</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -114,7 +92,40 @@
                             <child>
                               <object class="GtkCellRendererText" id="col_fav"/>
                               <attributes>
+                                <attribute name="text">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title">Delta, h.</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_delta"/>
+                              <attributes>
+                                <attribute name="text">3</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title">Time format</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_time_fmt"/>
+                              <attributes>
                                 <attribute name="text">4</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Api</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="col_api"/>
+                              <attributes>
+                                <attribute name="text">5</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -189,6 +200,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <signal name="clicked" handler="on_but_add_clicked" object="window_base_settings" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>

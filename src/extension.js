@@ -90,6 +90,8 @@ class MyPopup extends PanelMenu.Button {
     log("Index:" + Object.values(shallowDictUnpacked)[0])
     log("Vals:" + Object.values(shallowDictUnpacked));
     log("Keys:" + Object.keys(shallowDictUnpacked));
+    let test = shallowDictUnpacked[0]['name'].get_string();
+    log("new test:" + test);
     // log("arr" + arr.print(true));
 
     let el_arr = Object.values(shallowDictUnpacked)[0];
