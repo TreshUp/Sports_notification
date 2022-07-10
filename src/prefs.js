@@ -1,4 +1,4 @@
-const {Adw, Gtk, GObject, Gio} = imports.gi;
+const {Gtk, GObject, Gio} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 const SportsScope = GObject.registerClass({
@@ -15,7 +15,7 @@ const SportsScope = GObject.registerClass({
         return this[handlerName].bind(connectObject || this);
     }
     
-    on_but_add_clicked(connectObject, el) {
+    on_but_add_clicked(windget, button) {
         // log("Type1:" + connectObject.constructor);
         // log("Type2:" + el.parent.constructor);
 
@@ -28,12 +28,12 @@ const SportsScope = GObject.registerClass({
                 modal: true
             });
         let dialogArea = dialog.get_content_area();
-        dialogArea.append(connectObject);
+        dialogArea.append(windget);
         dialog.show();
         dialog.connect('close-request', () => {
             dialog.destroy();
         });
-
+        // TODO reopen bag
     }   
 });
 
@@ -86,17 +86,6 @@ function bind_settings () {
 
     let but_add = this.builder.get_object('but_add');
     let scope = this.builder.get_scope();
-    //but_add.connect('clicked', scope.on_but_add_clicked.bind(this));
-    // var lambda = (element)=>{
-    //     log("Init");
-    //     var widget = this.builder.get_object('view_main');
-    //     widget.show();
-    //   };
-    // but_add.connect('clicked', (element)=>{
-    //     log("Init");
-    //     var widget = this.builder.get_object('view_main');
-    //     widget.show();
-    //   });
     but_add.connect('clicked', scope.on_but_add_clicked.bind(this, 
         this.builder.get_object('view_base_settings')));
 }
