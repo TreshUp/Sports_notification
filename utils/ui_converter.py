@@ -16,6 +16,11 @@ if __name__ == '__main__':
         # ['object', 'GtkViewport', 'view_base_settings']
     ]
 
+    tags_after = [
+        ['object', 'GtkAdjustment', 'spin_vals_delta'], 
+        ['object', 'GtkViewport', 'view_base_settings']
+    ]
+
     # Template ui
     with open('utils/template.ui') as fp:
         template_soup = BeautifulSoup(fp, 'xml')
@@ -28,6 +33,12 @@ if __name__ == '__main__':
     for el in tags:
         small_soup = soup.find(el[0], {'class': el[1], 'id': el[2]})
         after_tag.append(small_soup)
+    
+    after_adw = template_soup.find('object', {'class': 'AdwPreferencesPage', 
+    'id' : 'settings_page'})
+    for el in tags_after:
+        small_soup = soup.find(el[0], {'class': el[1], 'id': el[2]})
+        after_adw.insert_after(small_soup)
 
     # Save new one
     with open('src/gtk4.ui', 'w') as file:
