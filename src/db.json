@@ -1,0 +1,12 @@
+{
+    "Autosport": [
+        {
+            "Formula 1": "https://ergast.com/api/f1/current"
+        }
+    ],
+    "Hockey": [
+        {
+            "NHL" : "https://statsapi.web.nhl.com/api/v1/schedule"
+        }
+    ]
+}

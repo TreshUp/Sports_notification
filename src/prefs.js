@@ -1,4 +1,4 @@
-const {Gtk, GObject, Gio} = imports.gi;
+const {GLib, Gtk, GObject, Gio} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 const SportsScope = GObject.registerClass({
@@ -15,24 +15,9 @@ const SportsScope = GObject.registerClass({
         return this[handlerName].bind(connectObject || this);
     }
     
-    on_but_add_clicked(windget, button) {
-        // log("Type1:" + connectObject.constructor);
-        // log("Type2:" + el.parent.constructor);
-
-        let dialog = new Gtk.Dialog({
-                title: ("Base settings"),
-                default_width: 350,
-                default_height: 300,
-                // TODO
-                // transient_for
-                modal: true
-            });
-        let dialogArea = dialog.get_content_area();
-        dialogArea.append(windget);
+    on_but_add_clicked(widget, button) {
+        let dialog = dialog_creation(widget);
         dialog.show();
-        dialog.connect('close-request', () => {
-            dialog.destroy();
-        });
         // TODO reopen bag
     }   
 });
@@ -69,20 +54,14 @@ function bind_settings () {
     let arr = this.settings.get_value('array-of-sports');
     const variant_arr = arr.deepUnpack();
     let arr_length = Object.keys(variant_arr).length;
-    
-    let code = false, f_path = null;
-    if (arr_length != 0)
-    {
-        tree_model.append();
-        [code, f_path] = tree_model.get_iter_first();
-    }
 
     for (let idx = 0; idx < arr_length; idx++)
     {
-        //log("Vals:" + Object.values(variant_arr[idx])[3].get_type_string());
         let g_array = variant_basic_types(Object.values(variant_arr[idx]));
-        tree_model.set(f_path, [...Array(g_array.length).keys()], g_array);
+        tree_model.set(tree_model.append(), [...Array(g_array.length).keys()], g_array);
     }
+
+    fill_in_combos(this.builder.get_object('cmb_sports'));
 
     let but_add = this.builder.get_object('but_add');
     let scope = this.builder.get_scope();
@@ -106,4 +85,68 @@ function variant_basic_types(array_of_variants) {
       });
 
     return array_of_types;
+}
+
+function fill_in_combos(sports_combo) {
+    let [ok, contents] = GLib.file_get_contents(Me.dir.get_path() + '/db.json');
+
+    if (ok) 
+    {
+        let json_data = JSON.parse(contents);
+        // log("Type2:" + Object.keys(json_data));
+        // log("Type3:" + sports_combo.constructor);
+        let tree_sports_combo = new Gtk.ListStore();
+        tree_sports_combo.set_column_types([GObject.TYPE_STRING]);
+    
+        for (let item of Object.keys(json_data))
+        {
+            tree_sports_combo.set(tree_sports_combo.append(), [0], [item]);
+        }            
+       
+        sports_combo.set_model(tree_sports_combo);
+        let renderer = new Gtk.CellRendererText();
+        // sports_combo.pack_start(renderer, true, true, false);
+        sports_combo.pack_start(renderer, true);
+        sports_combo.add_attribute(renderer, 'text', 0);
+    }
+    // TODO exceptions
+}
+
+function dialog_creation(widget) {
+    let dialog = new Gtk.Dialog({
+        title: ("Base settings"),
+        default_width: 350,
+        default_height: 300,
+        // TODO
+        // transient_for
+        modal: true
+    });
+    let dialogArea = dialog.get_content_area();
+    dialogArea.append(widget);
+
+    // log("This:" + this.constructor);
+    // let name_store = new Gtk.ListStore ();
+    // name_store.set_column_types ([
+    //   GObject.TYPE_STRING
+    // ]);
+
+    // for (let item of [["Billy Bob"], ["Billy Bob Junior"], ["Sue Bob"],
+    //                   ["Joey Jojo"], ["Rob McRoberts"], ["Xavier McRobets"]])
+    // {
+    //     name_store.set (name_store.append(), [0], [item[0]]);
+    // }
+    // let name_combo = new Gtk.ComboBox({
+    //     model: name_store,
+    //     has_entry: true
+    // });
+    // let renderer = new Gtk.CellRendererText();
+    // name_combo.pack_start(renderer, true, true, false);
+    // name_combo.add_attribute(renderer, 'text', 0);
+
+    // dialogArea.append(name_combo);
+      
+    dialog.connect('close-request', () => {
+        dialog.destroy();
+    });
+    return dialog;
 }
