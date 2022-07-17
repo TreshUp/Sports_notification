@@ -94,7 +94,6 @@ function fill_in_combos(sports_combo) {
     {
         let json_data = JSON.parse(contents);
         // log("Type2:" + Object.keys(json_data));
-        // log("Type3:" + sports_combo.constructor);
         let tree_sports_combo = new Gtk.ListStore();
         tree_sports_combo.set_column_types([GObject.TYPE_STRING]);
     
@@ -105,7 +104,6 @@ function fill_in_combos(sports_combo) {
        
         sports_combo.set_model(tree_sports_combo);
         let renderer = new Gtk.CellRendererText();
-        // sports_combo.pack_start(renderer, true, true, false);
         sports_combo.pack_start(renderer, true);
         sports_combo.add_attribute(renderer, 'text', 0);
     }
@@ -123,27 +121,6 @@ function dialog_creation(widget) {
     });
     let dialogArea = dialog.get_content_area();
     dialogArea.append(widget);
-
-    // log("This:" + this.constructor);
-    // let name_store = new Gtk.ListStore ();
-    // name_store.set_column_types ([
-    //   GObject.TYPE_STRING
-    // ]);
-
-    // for (let item of [["Billy Bob"], ["Billy Bob Junior"], ["Sue Bob"],
-    //                   ["Joey Jojo"], ["Rob McRoberts"], ["Xavier McRobets"]])
-    // {
-    //     name_store.set (name_store.append(), [0], [item[0]]);
-    // }
-    // let name_combo = new Gtk.ComboBox({
-    //     model: name_store,
-    //     has_entry: true
-    // });
-    // let renderer = new Gtk.CellRendererText();
-    // name_combo.pack_start(renderer, true, true, false);
-    // name_combo.add_attribute(renderer, 'text', 0);
-
-    // dialogArea.append(name_combo);
       
     dialog.connect('close-request', () => {
         dialog.destroy();
