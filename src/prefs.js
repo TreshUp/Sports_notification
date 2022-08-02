@@ -1,6 +1,11 @@
 const {GLib, Gtk, GObject, Gio} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
+const [ok, contents] = GLib.file_get_contents(Me.dir.get_path() + '/db.json');
+if (ok) {
+    var json_data = JSON.parse(contents);
+}
+
 const SportsScope = GObject.registerClass({
     Implements: [Gtk.BuilderScope],
 }, class SportsScope extends GObject.Object {
@@ -19,7 +24,23 @@ const SportsScope = GObject.registerClass({
         let dialog = dialog_creation(widget);
         dialog.show();
         // TODO reopen bag
-    }   
+    }
+    
+    on_sports_changed(sports_cmb, league_cmb, button) {
+        log("Type1:" + league_cmb.get_model());
+        let model = sports_cmb.get_model();
+        let [success, iter] = sports_cmb.get_active_iter();
+        // todo exception
+        let value = model.get_value(iter, 0);
+        // array of objects
+        let arr_leagues = json_data[value];
+        let tree_league_combo = league_cmb.get_model();
+        tree_league_combo.clear();
+
+        for (let item of arr_leagues) {
+            tree_league_combo.set(tree_league_combo.append(), [0], Object.keys(item));          
+        }
+    }
 });
 
 function init () {}
@@ -61,7 +82,7 @@ function bind_settings () {
         tree_model.set(tree_model.append(), [...Array(g_array.length).keys()], g_array);
     }
 
-    fill_in_combos(this.builder.get_object('cmb_sports'));
+    fill_in_combos();
 
     let but_add = this.builder.get_object('but_add');
     let scope = this.builder.get_scope();
@@ -77,37 +98,46 @@ function variant_basic_types(array_of_variants) {
     let array_of_types = array_of_variants.map((element) => {
         let type = element.get_type_string();
         let val = map_lamdas.get(type)(element);
-        // Because get_string returns string and its length
+        // Because get_string returns string and it's length
         if (typeof val === 'object')
             return val[0];
         else
             return val;
-      });
-
+    });
+    
+    let tmp_f = Object.keys(json_data)[array_of_types[0]];
+    array_of_types[0] = tmp_f;
+    
+    // key -> el of array -> first el of array of strings
+    array_of_types[1] = Object.keys(json_data[tmp_f][array_of_types[1]])[0];
     return array_of_types;
 }
 
-function fill_in_combos(sports_combo) {
-    let [ok, contents] = GLib.file_get_contents(Me.dir.get_path() + '/db.json');
+function prepare_combo(combo, cmb_type) {
+    let tree_combo = new Gtk.ListStore();
+    tree_combo.set_column_types([cmb_type]);
 
-    if (ok) 
-    {
-        let json_data = JSON.parse(contents);
-        // log("Type2:" + Object.keys(json_data));
-        let tree_sports_combo = new Gtk.ListStore();
-        tree_sports_combo.set_column_types([GObject.TYPE_STRING]);
+    combo.set_model(tree_combo);
+    let renderer = new Gtk.CellRendererText();
+    combo.pack_start(renderer, true);
+    combo.add_attribute(renderer, 'text', 0);
+    return tree_combo;
+}
+
+function fill_in_combos() {
+    // log("Type2:" + Object.keys(json_data));
+    sports_combo = this.builder.get_object('cmb_sports');
+    tree_sports_combo = prepare_combo(sports_combo, GObject.TYPE_STRING);
+    for (let item of Object.keys(json_data)) {
+        tree_sports_combo.set(tree_sports_combo.append(), [0], [item]);    
+    }      
     
-        for (let item of Object.keys(json_data))
-        {
-            tree_sports_combo.set(tree_sports_combo.append(), [0], [item]);
-        }            
-       
-        sports_combo.set_model(tree_sports_combo);
-        let renderer = new Gtk.CellRendererText();
-        sports_combo.pack_start(renderer, true);
-        sports_combo.add_attribute(renderer, 'text', 0);
-    }
     // TODO exceptions
+    league_combo = this.builder.get_object('cmb_league');
+    tree_league_combo = prepare_combo(league_combo, GObject.TYPE_STRING);
+    let scope = this.builder.get_scope();
+    sports_combo.connect('changed', scope.on_sports_changed.bind(this, 
+        sports_combo, league_combo));
 }
 
 function dialog_creation(widget) {
