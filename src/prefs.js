@@ -20,9 +20,25 @@ const SportsScope = GObject.registerClass({
         return this[handlerName].bind(connectObject || this);
     }
     
+    get_sport_settings(exist_object, keys, ui_array) {
+        let [sports_cmb, league_cmb, spin_delta, text_api] = ui_array;
+       
+        exist_object[keys[0]] = new GLib.Variant('i', sports_cmb.get_active());
+        exist_object[keys[1]] = new GLib.Variant('i', league_cmb.get_active());
+        // TODO not def value
+        exist_object[keys[2]] = new GLib.Variant('s', 'Ferrari');
+        exist_object[keys[3]] = new GLib.Variant('i', spin_delta.get_value());
+        // TODO not def value
+        exist_object[keys[4]] = new GLib.Variant('s', 'UTC');
+
+        let text_buf = text_api.get_buffer();
+        let [st, end] = text_buf.get_bounds();
+        exist_object[keys[5]] = new GLib.Variant('s', text_buf.get_text(st, end, false));
+    }
+
     on_but_add_clicked(widget, button) {
-        let dialog = dialog_creation(widget);
-        dialog.show();
+        // let dialog = dialog_creation(widget);
+        // dialog.show();
         // TODO reopen bag
     }
 
@@ -38,28 +54,11 @@ const SportsScope = GObject.registerClass({
         let selection = tree_view.get_selection();
         selection.set_mode(Gtk.SelectionMode.BROWSE);
         let [flag, model, iter] = tree_view.get_selection().get_selected();
+        let tree_help_array = tree_view.get_selection().get_selected();
         if (flag) {
-            
-            // Get map from schema
-            let arr = settings.get_value('array-of-sports');
-            let index_of_row = model.get_path(iter).get_indices();
-            // Convert map into array
-            const variant_arr = [...Object.values(arr.deepUnpack()[index_of_row])];
-
-            // Sport and league were set by index
-            sports_cmb.set_active(variant_arr[0]);
-            league_cmb.set_active(variant_arr[1]);
-            // Delta
-            // TODO check
-            spin_delta.set_value(variant_arr[3]);
-            // Api
-            let api = variant_arr[5].get_string();
-            text_api.get_buffer().set_text(api[0], api[1]);
-
-            let dialog = dialog_creation(widget);
+            let dialog = dialog_creation(objects_array, tree_help_array);
+            // TODO remove from here
             dialog.show();
-
-            // TODO save changes after ?? (close or ok button)
         }
         // todo exception
     }
@@ -117,6 +116,7 @@ function bind_settings () {
     let arr = this.settings.get_value('array-of-sports');
     const variant_arr = arr.deepUnpack();
     let arr_length = Object.keys(variant_arr).length;
+    log("Type2:" + arr_length);
 
     for (let idx = 0; idx < arr_length; idx++)
     {
@@ -212,7 +212,7 @@ function fill_in_combos() {
     tree_league_combo = prepare_combo(league_combo, GObject.TYPE_STRING);
 }
 
-function dialog_creation(widget) {
+function dialog_creation(objects_array, tree_help_array) {
     let dialog = new Gtk.Dialog({
         title: ("Base settings"),
         default_width: 350,
@@ -221,12 +221,67 @@ function dialog_creation(widget) {
         // transient_for
         modal: true
     });
+    let scope = this.builder.get_scope();
+    let [widget, tree_view, sports_cmb, league_cmb, spin_delta, text_api] = objects_array;
+    let [flag, model, iter] = tree_help_array;
+    dialog._all_settings = this.settings;
+    dialog._scope = scope;
+    dialog._obj_arr = objects_array.slice(2);
+
+    if (flag) {
+        // Get map from schema
+        let arr = settings.get_value('array-of-sports');
+        let index_of_row = model.get_path(iter).get_indices();
+        dialog._current_idx = index_of_row;
+
+        // Convert map into array
+        const variant_arr = [...Object.values(arr.deepUnpack()[index_of_row])];
+
+        // Sport and league were set by index
+        sports_cmb.set_active(variant_arr[0]);
+        league_cmb.set_active(variant_arr[1]);
+        // Delta
+        // TODO check
+        spin_delta.set_value(variant_arr[3]);
+        // Api
+        let api = variant_arr[5].get_string();
+        text_api.get_buffer().set_text(api[0], api[1]);
+    }
+
     let dialogArea = dialog.get_content_area();
     dialogArea.append(widget);
-      
-    dialog.connect('close-request', () => {
-        dialog.destroy();
+    
+    dialog.add_button("Apply", Gtk.ResponseType.APPLY);
+    dialog.add_button("Cancel", Gtk.ResponseType.CANCEL);
+
+    // TODO connect with func
+    dialog.connect('response', (dialog, response_id) => {
+        if (response_id === Gtk.ResponseType.APPLY) {
+            log("APPLY");
+            let variants_sports = dialog._all_settings.get_value('array-of-sports');
+            const array_sports = variants_sports.deepUnpack();
+
+            let updated_sport = new Map();
+            // TODO zero settings
+            dialog._scope.get_sport_settings(updated_sport, Object.keys(array_sports[0]), dialog._obj_arr)
+            array_sports[dialog._current_idx] = updated_sport;
+            updated_variants = new GLib.Variant('aa{sv}', array_sports);
+            dialog._all_settings.set_value('array-of-sports', updated_variants);
+            log("Done");
+            dialog.destroy();
+        }
+        else if (response_id === Gtk.ResponseType.CANCEL) {
+            log("CANCEL");
+            dialog.destroy();
+        }
+        else
+            log('else esle');
+            dialog.destroy();
     });
+
+    // dialog.connect('close-request', () => {
+    //     dialog.destroy();
+    // });
     return dialog;
 }
 /**
