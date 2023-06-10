@@ -1,4 +1,4 @@
-const {St, GObject, Gio, Gtk, GLib} = imports.gi;
+const { St, Clutter, GObject, Gio, Gtk} = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Main = imports.ui.main;
@@ -6,7 +6,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 let myPopup;
 
-function getSettings () {
+function getSettings() {
   let GioSSS = Gio.SettingsSchemaSource;
   let schemaSource = GioSSS.new_from_directory(
     Me.dir.get_child("schemas").get_path(),
@@ -14,141 +14,130 @@ function getSettings () {
     false
   );
 
-
-  log("path:" + Me.dir.get_child("schemas").get_path())
+  log("path:" + Me.dir.get_child("schemas").get_path());
   let schemaObj = schemaSource.lookup(
-    'org.gnome.shell.extensions.sportsnotifications', true);
+    "org.gnome.shell.extensions.sportsnotifications",
+    true
+  );
   if (!schemaObj) {
-    throw new Error('cannot find schemas');
+    throw new Error("cannot find schemas");
   }
-  return new Gio.Settings({ settings_schema : schemaObj });
+  return new Gio.Settings({ settings_schema: schemaObj });
 }
 
 const MyPopup = GObject.registerClass(
-class MyPopup extends PanelMenu.Button {
+  class MyPopup extends PanelMenu.Button {
+    _init() {
+      super._init(0);
 
-  _init () {
-  
-    super._init(0);
-    
-    // Creation of base class with logo
+      // Creation of base class with logo
+      let icon = new St.Icon({
+        //   icon_name : 'security-low-symbolic',
+        gicon: Gio.icon_new_for_string(Me.dir.get_path() + "/sports.svg"),
+        style_class: "system-status-icon",
+      });
+      this.add_child(icon);
 
-    let icon = new St.Icon({
-    //   icon_name : 'security-low-symbolic',
-      gicon : Gio.icon_new_for_string( Me.dir.get_path() + '/sports.svg' ),
-      style_class : 'system-status-icon',
-    });
-   
-    this.add_child(icon);
+      // this.menu.addMenuItem( new PopupMenu.PopupSeparatorMenuItem() );a
 
-    
-    
-    // this.menu.addMenuItem( new PopupMenu.PopupSeparatorMenuItem() );a
-    
-    this.menu.connect('open-state-changed', (menu, open) => {
-      if (open) {
-        log('opened');
-      } else {
-        log('closed');
-      }
-    });
-    
-    // image item
-    let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-      'Menu Item with Icon',
-      'security-high-symbolic',
-    );
-    this.menu.addMenuItem(popupImageMenuItem);
+      // this.menu.connect("open-state-changed", (menu, open) => {
+      //   if (open) {
+      //     log("opened");
+      //     const gtkVersion = Gtk.get_major_version();
 
-    // Layout creation
-    this.box_content = new St.BoxLayout({ style_class: 'timepp-content-box', vertical: true});
-    
-    // ??
-    this.box_content._delegate = this;
+      //     log(`GTK version is ${gtkVersion}`);
+      //   } else {
+      //     log("closed");
+      //   }
+      // });
 
-    let prefsButton = this.createButton('preferences-system-symbolic', _("Weather Settings"));
-    prefsButton.connect('clicked', this.my_test_func.bind(this));
-    this.box_content.add_actor(prefsButton);
+      // Layout creation
+      this.box_content = new St.BoxLayout({
+        style_class: "content-box",
+        vertical: true,
+      });
 
-    this.menu.box.add_child(this.box_content);
-  
-    
-    // you can close, open and toggle the menu with
-    // this.menu.close();
-    // this.menu.open();
-    // this.menu.toggle();
-
-
-    let settings = getSettings();
-  
-    // my array
-    //settings.set_strv('my-array', ['new', 'new2']);
-    let arr = settings.get_value('array-of-sports');
-    log("Type" + arr.get_type());
-    const shallowDictUnpacked = arr.deepUnpack();
-    log("len:" + Object.keys(shallowDictUnpacked).length);
-    log("Index:" + Object.values(shallowDictUnpacked)[0])
-    log("Vals:" + Object.values(shallowDictUnpacked));
-    log("Keys:" + Object.keys(shallowDictUnpacked));
-    let test = shallowDictUnpacked[0]['name'].get_string();
-    log("new test:" + test);
-    // log("arr" + arr.print(true));
-
-    let el_arr = Object.values(shallowDictUnpacked)[0];
-    log("Keys:" + Object.keys(el_arr));
-    log("string:" + el_arr['delta_h'].get_int32());
-
-    const variant = new GLib.Variant('aa{sv}', [{
-      name: GLib.Variant.new_string('Mario'),
-      lives: GLib.Variant.new_uint32(3),
-      active: GLib.Variant.new_boolean(true),
-  },
-  {
-    name: GLib.Variant.new_string('2'),
-    lives: GLib.Variant.new_uint32(22),
-    active: GLib.Variant.new_boolean(false),
-  }]);
-    log("example" + variant.print(true))
-    log("example len:" + Object.keys(variant.deepUnpack()).length)
-    log("example Index:" + Object.values(variant.deepUnpack())[0])
-    log("Keys:" + Object.keys(variant.deepUnpack()));
-    log(Me.path)
-    const gtkVersion = Gtk.get_major_version();
-
-    log(`GTK version is ${gtkVersion}`);
-  }
-
-  createButton(iconName, accessibleName) {
-    let button;
-
-    button = new St.Button({
+      let prefs_button = new St.Button({
+        x_align: Clutter.ActorAlign.END,
         reactive: true,
         can_focus: true,
         track_hover: true,
-        accessible_name: accessibleName,
-        style_class: 'message-list-clear-button button openweather-button-action'
-    });
+        accessible_name: "accessibleName",
+        style_class: 'message-list-clear-button button openweather-button-action',
+      });
 
-    button.child = new St.Icon({
-        icon_name: iconName
-    });
+      prefs_button.child = new St.Icon({
+        icon_name: "preferences-system-symbolic",
+      });
+      prefs_button.connect("clicked", this.my_test_func.bind(this));
+      this.box_content.add(prefs_button);
 
-    return button;
-}
+      this._weatherInfo = new St.Label({
+        /*style_class: "openweather-label",*/
+        text: _("Loading"),
+        y_align: Clutter.ActorAlign.CENTER,
+        y_expand: true,
+      });
+      // let topBox = new St.BoxLayout({
+      //   style_class: "panel-status-menu-box",
+      // });
 
-my_test_func(){
-  log('my_test_clicked');
-}
+      // let th = new Gtk.IconTheme();
+      // //th.append_search_path(Me.dir.get_path());
+      // //log("path: " + th.get_search_path());
+      // //let lol = th.load_icon_for_scale("detroit.svg", 225, 2, Gtk.IconLookupFlags.FORCE_SVG);
+      // let lol = th.lookup_by_gicon_for_scale(
+      //   Gio.icon_new_for_string(Me.dir.get_path() + "/detroit.svg"),
+      //   225,
+      //   2,
+      //   Gtk.IconLookupFlags.FORCE_SVG
+      // );
+      // log("puf: " + lol.constructor.name);
 
+      // let lol = GdkPixbuf.Pixbuf.new_from_file_at_scale(Me.dir.get_path() + "/detroit.svg",
+      // 2 * 225, 2 * 225, false);
+      // const pixels = lol.read_pixel_bytes();
+      // log("pixels: " + pixels.constructor.name);
+      // const content = St.ImageContent.new_with_preferred_size(
+      //   lol.width,
+      //   lol.height
+      // );
+      // content.set_bytes(
+      //   pixels,
+      //   Cogl.PixelFormat.RGB_888,
+      //   lol.width,
+      //   lol.height,
+      //   lol.rowstride
+      // );
+      let team_icon = new St.Icon({
+        gicon: Gio.icon_new_for_string(Me.dir.get_path() + "/detroit.svg"),
+        x_expand: true,
+      });
+      team_icon.set_icon_size(300);
 
-});
+      this.box_content.add(team_icon);
+      // topBox.add(this._weatherInfo);
 
-function init() {
-}
+      // this.menu.box.add_child(topBox);
+      this.menu.box.add_child(this.box_content);
+
+      // you can close, open and toggle the menu with
+      // this.menu.close();
+      // this.menu.open();
+      // this.menu.toggle();
+    }
+
+    my_test_func() {
+      log("my_test_clicked");
+    }
+  }
+);
+
+function init() {}
 
 function enable() {
   myPopup = new MyPopup();
-  Main.panel.addToStatusArea('myPopup', myPopup, 1);
+  Main.panel.addToStatusArea("myPopup", myPopup, 1);
 }
 
 function disable() {
