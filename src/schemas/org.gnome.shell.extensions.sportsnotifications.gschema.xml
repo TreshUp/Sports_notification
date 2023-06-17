@@ -11,7 +11,7 @@
             'league': <0>, 
             'fav': <'Ferrari'>,
             'delta_h': <24>,
-            'time_fmt': <'UTC'>,
+            'time_fmt': <-5>,
             'api': <'https://ergast.com/api/f1/current'>
           }
 				]

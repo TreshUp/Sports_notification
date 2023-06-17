@@ -17,7 +17,8 @@ if __name__ == '__main__':
     ]
 
     tags_after = [
-        ['object', 'GtkAdjustment', 'spin_vals_delta'], 
+        ['object', 'GtkAdjustment', 'spin_vals_delta'],
+        ['object', 'GtkAdjustment', 'spin_vals_time_fmt'], 
         ['object', 'GtkViewport', 'view_base_settings']
     ]
 

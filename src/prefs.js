@@ -1,10 +1,7 @@
 const { GLib, Gtk, GObject, Gio } = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-
-const [ok, contents] = GLib.file_get_contents(Me.dir.get_path() + "/db.json");
-if (ok) {
-  var json_data = JSON.parse(contents);
-}
+const { get_settings, variant_basic_types, json_data, prepare_combo } =
+  Me.imports.utils;
 
 const SportsScope = GObject.registerClass(
   {
@@ -22,15 +19,14 @@ const SportsScope = GObject.registerClass(
     }
 
     get_sport_settings(exist_object, keys, ui_array) {
-      let [sports_cmb, league_cmb, spin_delta, text_api] = ui_array;
+      let [sports_cmb, league_cmb, spin_delta, spin_utc, text_api] = ui_array;
 
       exist_object[keys[0]] = new GLib.Variant("i", sports_cmb.get_active());
       exist_object[keys[1]] = new GLib.Variant("i", league_cmb.get_active());
       // TODO not def value
       exist_object[keys[2]] = new GLib.Variant("s", "Ferrari");
       exist_object[keys[3]] = new GLib.Variant("i", spin_delta.get_value());
-      // TODO not def value
-      exist_object[keys[4]] = new GLib.Variant("s", "UTC");
+      exist_object[keys[4]] = new GLib.Variant("i", spin_utc.get_value());
 
       let text_buf = text_api.get_buffer();
       let [st, end] = text_buf.get_bounds();
@@ -94,20 +90,7 @@ const SportsScope = GObject.registerClass(
 function init() {}
 
 function buildPrefsWidget() {
-  {
-    let GioSSS = Gio.SettingsSchemaSource;
-    let schemaSource = GioSSS.new_from_directory(
-      Me.dir.get_child("schemas").get_path(),
-      GioSSS.get_default(),
-      false
-    );
-    let schemaObj = schemaSource.lookup(
-      "org.gnome.shell.extensions.sportsnotifications",
-      true
-    );
-
-    this.settings = new Gio.Settings({ settings_schema: schemaObj });
-  }
+  this.settings = get_settings();
 
   this.builder = new Gtk.Builder();
 
@@ -164,54 +147,6 @@ function connect_signals() {
 }
 
 /**
- * Function which converts Vatiants into ints and strings
- * @param  {Map of Gtk.Variants} array_of_variants    Single object from schema
- */
-function variant_basic_types(array_of_variants) {
-  // A little hack for converting variants to strings and ints
-  // upd can be done with recursiveUnpack instead deepUnpack
-  let map_lamdas = new Map();
-  map_lamdas.set("s", (element) => {
-    return element.get_string();
-  });
-  map_lamdas.set("i", (element) => {
-    return element.get_int32();
-  });
-
-  let array_of_types = array_of_variants.map((element) => {
-    let type = element.get_type_string();
-    let val = map_lamdas.get(type)(element);
-    // Because get_string returns string and it's length
-    if (typeof val === "object") return val[0];
-    else return val;
-  });
-
-  // Because of index system of db we need to get values from json
-  let tmp_f = Object.keys(json_data)[array_of_types[0]];
-  array_of_types[0] = tmp_f;
-
-  // key -> el of array -> first el of array of strings
-  array_of_types[1] = Object.keys(json_data[tmp_f][array_of_types[1]])[0];
-  return array_of_types;
-}
-
-/**
- * Function which creates model, sets type and render
- * @param  {Gtk.ComboBox} combo     Current combobox
- * @param  {GObject} cmb_type       Type of objects in this combo
- */
-function prepare_combo(combo, cmb_type) {
-  let tree_combo = new Gtk.ListStore();
-  tree_combo.set_column_types([cmb_type]);
-
-  combo.set_model(tree_combo);
-  let renderer = new Gtk.CellRendererText();
-  combo.pack_start(renderer, true);
-  combo.add_attribute(renderer, "text", 0);
-  return tree_combo;
-}
-
-/**
  * Function for filling in all comboboxes - combo with leagues is filled after
  * selection of sport
  */
@@ -229,31 +164,34 @@ function fill_in_combos() {
 }
 
 function dialog_creation(tree_help_array) {
-  // let dialog = new Gtk.Dialog({
-  //   title: "Base settings",
-  //   default_width: 350,
-  //   default_height: 300,
-  //   // TODO
-  //   // transient_for
-  //   modal: true,
-  // });
-
-  let dialog = new Gtk.Window({
+  let dialog = new Gtk.Dialog({
     title: "Base settings",
     default_width: 350,
     default_height: 300,
+    // TODO
+    // transient_for
+    modal: true,
   });
 
+  // let dialog = new Gtk.Window({
+  //   title: "Base settings",
+  //   default_width: 350,
+  //   default_height: 300,
+  // });
+
+  // TODO
   let objects_array = [
     ui_objects_getter("view_base_settings"),
     ui_objects_getter("cmb_sports"),
     ui_objects_getter("cmb_league"),
     ui_objects_getter("spin_delta"),
+    ui_objects_getter("spin_time_fmt"),
     ui_objects_getter("text_api"),
   ];
 
   let scope = this.builder.get_scope();
-  let [widget, sports_cmb, league_cmb, spin_delta, text_api] = objects_array;
+  let [widget, sports_cmb, league_cmb, spin_delta, spin_utc, text_api] =
+    objects_array;
   let [flag, model, iter] = tree_help_array;
 
   // let dialogArea = dialog.get_content_area();
@@ -261,9 +199,9 @@ function dialog_creation(tree_help_array) {
   // foreach (element in children)
   //     dialogArea.remove(element);
 
-  // dialogArea.append(widget);
-  dialog.set_child(widget);
-  log("Widget: " + widget.get_parent());
+  // // dialogArea.append(widget);
+  // dialog.set_child(widget);
+  // log("Widget: " + widget.get_parent());
 
   // dialog.add_button("Apply", Gtk.ResponseType.APPLY);
   // dialog.add_button("Cancel", Gtk.ResponseType.CANCEL);
@@ -283,52 +221,51 @@ function dialog_creation(tree_help_array) {
     // Sport and league were set by index
     sports_cmb.set_active(variant_arr[0]);
     league_cmb.set_active(variant_arr[1]);
-    // Delta
-    spin_delta.set_value(variant_arr[3]);
-    // Api
-    let api = variant_arr[5];
+    spin_delta.set_value(variant_arr[3]); // Delta
+    spin_utc.set_value(variant_arr[4]); // Time format
+    let api = variant_arr[5]; // Api
     text_api.get_buffer().set_text(api, api.length);
   }
 
-  dialog.connect('close-request', () => {
-    log('Close');
-    widget.unparent();
-    dialog.destroy();
-  });
+  let dialogArea = dialog.get_content_area();
+  dialogArea.append(widget);
+
+  dialog.add_button("Apply", Gtk.ResponseType.APPLY);
+  dialog.add_button("Cancel", Gtk.ResponseType.CANCEL);
 
   // TODO connect with func
-  // dialog.connect("response", (dialog, response_id) => {
-  //   if (response_id === Gtk.ResponseType.APPLY) {
-  //     log("APPLY");
-  //     let variants_sports = dialog._all_settings.get_value("array-of-sports");
-  //     const array_sports = variants_sports.deepUnpack();
+  dialog.connect("response", (dialog, response_id) => {
+    if (response_id === Gtk.ResponseType.APPLY) {
+      log("APPLY");
+      let variants_sports = dialog._all_settings.get_value("array-of-sports");
+      const array_sports = variants_sports.deepUnpack();
 
-  //     let updated_sport = new Map();
-  //     // TODO zero settings
-  //     dialog._scope.get_sport_settings(
-  //       updated_sport,
-  //       Object.keys(array_sports[0]),
-  //       dialog._obj_arr
-  //     );
-  //     if (flag) array_sports[dialog._current_idx] = updated_sport;
-  //     else array_sports.push(updated_sport);
+      let updated_sport = new Map();
+      // TODO zero settings
+      dialog._scope.get_sport_settings(
+        updated_sport,
+        Object.keys(array_sports[0]),
+        dialog._obj_arr
+      );
+      if (flag) array_sports[dialog._current_idx] = updated_sport;
+      else array_sports.push(updated_sport);
 
-  //     updated_variants = new GLib.Variant("aa{sv}", array_sports);
-  //     dialog._all_settings.set_value("array-of-sports", updated_variants);
-  //     this.bind_settings();
-  //     dialogArea.unparent();
-  //     log("Done");
-  //     dialog.destroy();
-  //   } else if (response_id === Gtk.ResponseType.CANCEL) {
-  //     dialogArea.unparent();
-  //     log("CANCEL");
-  //     dialog.destroy();
-  //   } else {
-  //     dialogArea.unparent();
-  //     log("else esle");
-  //     dialog.destroy();
-  //   }
-  // });
+      updated_variants = new GLib.Variant("aa{sv}", array_sports);
+      dialog._all_settings.set_value("array-of-sports", updated_variants);
+      this.bind_settings();
+      dialogArea.unparent();
+      log("Done");
+      dialog.destroy();
+    } else if (response_id === Gtk.ResponseType.CANCEL) {
+      dialogArea.unparent();
+      log("CANCEL");
+      dialog.destroy();
+    } else {
+      dialogArea.unparent();
+      log("else esle");
+      dialog.destroy();
+    }
+  });
 
   return dialog;
 }
