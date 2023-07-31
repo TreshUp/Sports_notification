@@ -36,10 +36,29 @@ const SportsScope = GObject.registerClass(
       );
     }
 
-    on_but_add_clicked(widget, button) {
+    on_but_add_clicked(button) {
       let dialog = dialog_creation([false, null, null]);
       dialog.show();
       // TODO reopen bag
+    }
+
+    on_but_rem_clicked(button) {
+      // Get all necessary objects
+      let tree_view = ui_objects_getter("tree_sports");
+      let selection = tree_view.get_selection();
+      selection.set_mode(Gtk.SelectionMode.BROWSE);
+      let [flag, model, iter] = tree_view.get_selection().get_selected();
+      if (flag) {
+        // Get map from schema
+        let arr = this.settings.get_value("array-of-sports");
+        let index_of_row = model.get_path(iter).get_indices();
+        const array_sports = arr.deepUnpack();
+        array_sports.splice(index_of_row, 1);
+
+        let updated_variants = new GLib.Variant("aa{sv}", array_sports);
+        this.settings.set_value("array-of-sports", updated_variants);
+        this.bind_settings();
+      }
     }
 
     /**
@@ -108,7 +127,7 @@ function bind_settings() {
   let arr = this.settings.get_value("array-of-sports");
   const variant_arr = arr.deepUnpack();
   let arr_length = Object.keys(variant_arr).length;
-  log("Type2:" + arr_length);
+  log("Type2:" + variant_arr.constructor.name);
 
   for (let idx = 0; idx < arr_length; idx++) {
     let g_array = variant_basic_types(Object.values(variant_arr[idx]));
@@ -144,6 +163,9 @@ function connect_signals() {
 
   let but_edit = ui_objects_getter("but_edit");
   but_edit.connect("clicked", scope.on_but_edit_clicked.bind(this));
+
+  let but_rem = ui_objects_getter("but_rem");
+  but_rem.connect("clicked", scope.on_but_rem_clicked.bind(this));
 }
 
 /**
@@ -250,7 +272,7 @@ function dialog_creation(tree_help_array) {
       if (flag) array_sports[dialog._current_idx] = updated_sport;
       else array_sports.push(updated_sport);
 
-      updated_variants = new GLib.Variant("aa{sv}", array_sports);
+      let updated_variants = new GLib.Variant("aa{sv}", array_sports);
       dialog._all_settings.set_value("array-of-sports", updated_variants);
       this.bind_settings();
       dialogArea.unparent();
